@@ -3,6 +3,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const ytdl = require('ytdl-core');
 const SpotifyUrlInfo = require('spotify-url-info');
+const prefix = '!'; // You can change '!' to any prefix you want
 
 // Load environment variables
 require('dotenv').config();
@@ -27,22 +28,27 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  const args = message.content.split(' ');
-  const command = args[0].toLowerCase();
+  // Check if the message starts with the configured prefix
+  if (message.content.startsWith(prefix)) {
+    // Remove the prefix from the command
+    const args = message.content.slice(prefix.length).split(' ');
+    const command = args[0].toLowerCase();
 
-  if (command === '!play') {
-    const url = args.slice(1).join(' ');
-    if (isSpotifyUrl(url)) {
-      playSpotify(message, url);
-    } else {
-      playYouTube(message, url);
+    // Rest of your command handling code remains unchanged
+    if (command === 'play') {
+      const url = args.slice(1).join(' ');
+      if (isSpotifyUrl(url)) {
+        playSpotify(message, url);
+      } else {
+        playYouTube(message, url);
+      }
+    } else if (command === 'skip') {
+      skip(message);
+    } else if (command === 'stop') {
+      stop(message);
+    } else if (command === 'casino') {
+      casino(message);
     }
-  } else if (command === '!skip') {
-    skip(message);
-  } else if (command === '!stop') {
-    stop(message);
-  } else if (command === '!casino') {
-    casino(message);
   }
 });
 
