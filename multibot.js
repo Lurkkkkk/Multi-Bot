@@ -1,4 +1,3 @@
-```javascript
 const { Client, GatewayIntentBits } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
@@ -8,7 +7,15 @@ const SpotifyUrlInfo = require('spotify-url-info');
 // Load environment variables
 require('dotenv').config();
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.VoiceStates] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildVoiceStates,
+  ]
+});
+
 const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);
 
 const queue = new Map();
@@ -34,11 +41,12 @@ client.on('messageCreate', async (message) => {
     skip(message);
   } else if (command === '!stop') {
     stop(message);
+  } else if (command === '!casino') {
+    casino(message);
   }
 });
 
 function isSpotifyUrl(url) {
-  // Check if the provided URL is a Spotify URL
   return url.includes('open.spotify.com');
 }
 
@@ -52,7 +60,7 @@ async function playSpotify(message, url) {
     const songInfo = await SpotifyUrlInfo.getPreview(url);
     const song = {
       title: songInfo.title,
-      url: songInfo.preview_url, // Correct property name
+      url: songInfo.preview_url,
     };
 
     handleSong(message, voiceChannel, song);
@@ -83,7 +91,7 @@ function playYouTube(message, url) {
   });
 }
 
-function handleSong(message, voiceChannel, song) {
+async function handleSong(message, voiceChannel, song) {
   const serverQueue = queue.get(message.guild.id);
 
   if (!serverQueue) {
@@ -100,7 +108,7 @@ function handleSong(message, voiceChannel, song) {
     queueConstruct.songs.push(song);
 
     try {
-      const connection = voiceChannel.join();
+      const connection = await voiceChannel.join();
       queueConstruct.connection = connection;
       play(message.guild, queueConstruct.songs[0]);
     } catch (error) {
@@ -149,6 +157,11 @@ function play(guild, song) {
   serverQueue.textChannel.send(`Now playing: **${song.title}**`);
 }
 
+function casino(message) {
+  const result = Math.floor(Math.random() * 6) + 1;
+  message.channel.send(`You rolled a ${result}!`);
+}
+
 const commands = [
   {
     name: 'play',
@@ -173,12 +186,15 @@ const commands = [
     description: 'Stop the music and disconnect from the voice channel.',
     type: 1,
   },
+  {
+    name: 'casino',
+    description: 'Roll a six-sided die in the casino.',
+    type: 1,
+  },
 ];
 
 (async () => {
-
-
- try {
+  try {
     console.log('Started refreshing global application (/) commands.');
 
     await rest.put(
@@ -193,4 +209,3 @@ const commands = [
 })();
 
 client.login(process.env.BOT_TOKEN);
-```
