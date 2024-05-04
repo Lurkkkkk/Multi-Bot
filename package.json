@@ -9,9 +9,9 @@
   "author": "Lurkkkk",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/rest": "^2.2.0",
+    "@discordjs/rest": "^2.3.0",
     "discord-api-types": "^0.37.67",
-    "discord.js": "^14.14.1",
+    "discord.js": "^14.15.1",
     "dotenv": "^16.4.1",
     "spotify-url-info": "^3.2.10",
     "ytdl-core": "^4.11.5"
